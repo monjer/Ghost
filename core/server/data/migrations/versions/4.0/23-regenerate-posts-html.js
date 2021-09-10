@@ -1,7 +1,7 @@
 const logging = require('@tryghost/logging');
 const {createIrreversibleMigration} = require('../../utils');
 const mobiledocLib = require('../../../../lib/mobiledoc');
-const htmlToText = require('html-to-text');
+const htmlToText = require('../../../../../shared/html-to-plaintext');
 
 module.exports = createIrreversibleMigration(async (knex) => {
     logging.info('Starting re-generation of posts html.');
@@ -47,14 +47,7 @@ module.exports = createIrreversibleMigration(async (knex) => {
             // NOTE: block comes straight from the Post model
             // https://github.com/TryGhost/Ghost/blob/4.0.0-alpha.2/core/server/models/post.js#L484
             if (html !== post.html || !post.plaintext) {
-                const plaintext = htmlToText.fromString(html, {
-                    wordwrap: 80,
-                    ignoreImage: true,
-                    hideLinkHrefIfSameAsText: true,
-                    preserveNewlines: true,
-                    returnDomByDefault: true,
-                    uppercaseHeadings: false
-                });
+                const plaintext = htmlToText(html);
 
                 if (plaintext !== post.plaintext) {
                     updatedAttrs.plaintext = plaintext;
